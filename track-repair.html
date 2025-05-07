@@ -56,7 +56,7 @@
 function checkStatus(event) {
     event.preventDefault();
     const id = document.getElementById('repairId').value.trim();
-    fetch('https://script.google.com/macros/library/d/1_JpwQ8Et-aFJWi8m4HSgDed41YrCxzlU50DoU3knJ6OuE2gzPC4dGf6w/1')
+    fetch('https://script.google.com/macros/s/AKfycbzu14T1DzdPTX8mEszgEeCIgjYXSbGLVjR6dvHVX3OtKQJXDPZlRRI8ZjI8UqU__CN3zQ/exec')
         .then(response => response.json())
         .then(data => {
             const record = data.find(row => row['Repair ID'] === id);
