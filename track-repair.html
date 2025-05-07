@@ -59,7 +59,7 @@ function checkStatus(event) {
     fetch('https://script.google.com/macros/s/AKfycbzu14T1DzdPTX8mEszgEeCIgjYXSbGLVjR6dvHVX3OtKQJXDPZlRRI8ZjI8UqU__CN3zQ/exec')
         .then(response => response.json())
         .then(data => {
-            const record = data.find(row => row['Repair ID'] === id);
+            const record = data.find(row => String(row['Repair ID']) === id);
             const resultDiv = document.getElementById('result');
             if (record) {
                 resultDiv.textContent = `Status: ${record['Status']} (Last updated: ${record['Last Update']})`;
