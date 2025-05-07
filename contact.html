@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact | RescueTech</title>
@@ -31,6 +30,20 @@
         @media (max-width: 600px) {
             .logo { width: 140px; }
         }
+        .track-button {
+            display: inline-block;
+            background-color: #107ca4; /* azzurro in tinta palette */
+            color: white;
+            padding: 12px 24px;
+            margin-top: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+        .track-button:hover {
+        background-color: #0b5c7c;
+        }
     </style>
 </head>
 <body>
@@ -50,7 +63,7 @@
     <a href="/rescuetech/index.html">Home</a>
     <a href="/rescuetech/services.html">Services</a>
     <a href="/rescuetech/about-us.html">About Us</a>
-    <a href="/rescuetech/shop.html">Shop</a>
+    <a href="/rescuetech/contact.html">Contact</a>
     <a href="/rescuetech/faq.html">FAQ</a>
 </nav>
 <div class="main-section">
@@ -62,11 +75,29 @@
         <p><strong>Location:</strong> 6 Massicot Rd, Treeby, Perth, Western Australia</p>
         <p><strong>Business Hours:</strong> Monday-Friday 6PM-9PM, Weekend 9AM-9PM</p>
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSfUNiOVqh36fpYi9ozFGv43HxrnsrYYKDV7znsnkVEhN0-lNA/viewform?embedded=true" class="contact-button" target="_blank">Request a Repair</a>
+        <a href="track-repair.html" class="track-button">Track My Repair</a>
     </div>
 </div>
 <footer>
     &copy; 2025 RescueTech. All rights reserved.
 </footer>
 </div>
+<script>
+    function checkStatus(event) {
+        event.preventDefault();
+        const id = document.getElementById('repairId').value.trim();
+        fetch('https://api.sheetbest.com/sheets/85241676-1bea-4e6f-bbd0-89166615f73c')
+            .then(response => response.json())
+            .then(data => {
+                const record = data.find(row => row['Repair ID'] === id);
+                const resultDiv = document.getElementById('result');
+                if (record) {
+                    resultDiv.textContent = `Status: ${record['Status']} (Last updated: ${record['Last Update']})`;
+                } else {
+                    resultDiv.textContent = 'Repair ID not found. Please check and try again.';
+                }
+            });
+    }
+    </script>
 </body>
 </html>
