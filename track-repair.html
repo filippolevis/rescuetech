@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Repair | RescueTech</title>
+    <style>
+        html, body { height: 100%; margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffffff; color: #000000; }
+        .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #ffffff; color: black; padding: 20px; text-align: center; }
+        .logo { width: 180px; margin-top: 10px; margin-bottom: 10px; }
+        .marquee { background-color: #107C41; color: white; overflow: hidden; white-space: nowrap; box-sizing: border-box; font-style: italic; height: 30px; display: flex; align-items: center; }
+        .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 50s linear infinite; }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+        nav { background-color: #ffffff; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; padding: 15px; }
+        nav a { color: black; text-decoration: none; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        .main-section { flex: 1; padding: 40px 20px; max-width: 800px; margin: auto; text-align: center; }
+        h2 { margin-top: 40px; font-size: 2em; }
+        p { margin: 20px 0; font-size: 1.1em; line-height: 1.6; }
+        form { max-width: 500px; margin: auto; display: flex; gap: 10px; }
+        input[type="text"] {
+            flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px; background: #107C41; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
+        }
+        button:hover { background: #0b5c30; }
+        #result { margin-top: 20px; text-align: center; font-weight: bold; }
+        footer { background-color: #0B2B40; color: white; text-align: center; padding: 10px; font-size: 0.9em; margin-top: 30px; }
+        @media (max-width: 600px) { .logo { width: 140px; } }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+
+<main class="main-section">
+    <h2>Track Your Repair</h2>
+    <p>Enter your Repair ID below to view the latest status of your device.</p>
+    <form onsubmit="checkStatus(event)">
+        <input type="text" id="repairId" placeholder="Enter your Repair ID" required>
+        <button type="submit">Check</button>
+    </form>
+    <div id="result"></div>
+</main>
+<footer>
+    &copy; 2025 RescueTech. All rights reserved.
+</footer>
+</div>
+<script>
+function checkStatus(event) {
+    event.preventDefault();
+    const id = document.getElementById('repairId').value.trim();
+    fetch('https://api.sheetbest.com/sheets/85241676-1bea-4e6f-bbd0-89166615f73c')
+        .then(response => response.json())
+        .then(data => {
+            const record = data.find(row => row['Repair ID'] === id);
+            const resultDiv = document.getElementById('result');
+            if (record) {
+                resultDiv.textContent = `Status: ${record['Status']} (Last updated: ${record['Last Update']})`;
+            } else {
+                resultDiv.textContent = 'Repair ID not found. Please check and try again.';
+            }
+        });
+}
+</script>
+</body>
+</html>
