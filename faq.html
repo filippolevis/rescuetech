@@ -235,12 +235,12 @@
         let bestMatch = null;
     
         // Check services
-        for (let item of servicesData) {
-            if (translatedInput.toLowerCase().includes(item.service.slice(0, 5))) {
-                bestMatch = `${capitalize(item.service)} costs ${item.price}.`;
-                break;
-            }
-        }
+        for (let info of extraData) {
+    if (info.toLowerCase().includes(translatedInput.toLowerCase()) || translatedInput.toLowerCase().includes(info.toLowerCase())) {
+        bestMatch = info;
+        break;
+    }
+}
     
         // Check extra data
         if (!bestMatch) {
