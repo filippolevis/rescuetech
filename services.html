@@ -303,11 +303,11 @@
         // Check extra data
         if (!bestMatch) {
             for (let info of extraData) {
-                if (translatedInput.toLowerCase().includes(info.slice(0, 5).toLowerCase())) {
-                    bestMatch = info;
-                    break;
-                }
-            }
+    if (info.toLowerCase().includes(translatedInput.toLowerCase()) || translatedInput.toLowerCase().includes(info.toLowerCase())) {
+        bestMatch = info;
+        break;
+    }
+}
         }
     
         const fallback = "I'm sorry, I couldn't find an answer to that question.";
