@@ -72,150 +72,217 @@
     &copy; 2025 RescueTech. All rights reserved.
 </footer>
 <style>
-    #botChatButton {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #107C41;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        font-size: 30px;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        z-index: 1000;
-    }
-    
-    #chatBox {
-        position: fixed;
-        bottom: 90px;
-        right: 20px;
-        width: 300px;
-        max-height: 400px;
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        display: none; 
-        flex-direction: column;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        z-index: 1000;
-    }
-    
-    #chatHeader {
-        background: #107C41;
-        color: white;
-        padding: 10px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        text-align: center;
-        font-weight: bold;
-    }
-    
-    #chatContent {
-        flex: 1;
-        padding: 10px;
-        overflow-y: auto;
-        font-size: 0.95em;
-    }
-    
-    #chatInput {
-        display: flex;
-        padding: 10px;
-        border-top: 1px solid #ddd;
-    }
-    
-    #chatInput input {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    
-    #chatInput button {
-        background: #107C41;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        margin-left: 5px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+    #botChatButton { position: fixed; bottom: 20px; right: 20px; background-color: #107C41; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 30px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
+        #chatBox { position: fixed; bottom: 90px; right: 20px; width: 300px; max-height: 400px; background: white; border: 1px solid #ccc; border-radius: 10px; display: none; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
+        #chatHeader { background: #107C41; color: white; padding: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px; text-align: center; font-weight: bold; }
+        #chatContent { flex: 1; padding: 10px; overflow-y: auto; font-size: 0.95em; }
+        #chatInput { display: flex; padding: 10px; border-top: 1px solid #ddd; }
+        #chatInput input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
+        #chatInput button { background: #107C41; color: white; border: none; padding: 8px 10px; margin-left: 5px; border-radius: 5px; cursor: pointer; }
     </style>
-    
-    <button id="botChatButton">💬</button>
-    
-    <div id="chatBox">
-        <div id="chatHeader">RescueBot</div>
-        <div id="chatContent">Hi there! Type your question below 👇</div>
-        <div id="chatInput">
-            <input type="text" id="userInput" placeholder="Type your message...">
-            <button id="sendButton">Send</button>
-        </div>
+</head>
+<body>
+
+<div class="main-section">
+    <h1>About RescueTech</h1>
+    <p>We provide professional repairs for smartphones, laptops, and smartwatches with transparent pricing and fast service.</p>
+</div>
+
+<!-- BOT DATA (hidden) -->
+<div id="botData" style="display: none;">
+    <p data-keywords="price,cost,iphone 8,screen,glass,replacement">
+        <strong>Q:</strong> How much does it cost to replace an iPhone 8 screen?<br>
+        <strong>A:</strong> The price to replace an iPhone 8 screen is €79. Please contact us for confirmation.
+    </p>
+    <p data-keywords="hours,opening,times,schedule">
+        <strong>Q:</strong> What are your opening hours?<br>
+        <strong>A:</strong> We are open from 6 PM to 9 PM on weekdays and from 9 AM to 9 PM on weekends.
+    </p>
+    <p data-keywords="services,repair,smartphone,laptop,smartwatch">
+        <strong>Q:</strong> What services do you offer?<br>
+        <strong>A:</strong> We repair smartphones, laptops, and smartwatches. Check our Services page for details.
+    </p>
+</div>
+
+<button id="botChatButton">💬</button>
+<div id="chatBox">
+    <div id="chatHeader">RescueBot</div>
+    <div id="chatContent">
+        <p>Welcome! Please choose your language:</p>
+        <button onclick="setLanguage('en')">🇬🇧 English</button>
+        <button onclick="setLanguage('it')">🇮🇹 Italian</button>
+        <button onclick="setLanguage('es')">🇪🇸 Spanish</button>
     </div>
-    <script>
-        const chatButton = document.getElementById('botChatButton');
-        const chatBox = document.getElementById('chatBox');
-        
-        chatButton.addEventListener('click', () => {
-            if (chatBox.style.display === 'none' || chatBox.style.display === '') {
-                chatBox.style.display = 'flex';
+    <div id="chatInput" style="display: none;">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button id="changeLangButton" title="Change language">🌐</button>
+        <button id="sendButton">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatButton = document.getElementById('botChatButton');
+    const chatBox = document.getElementById('chatBox');
+    const chatInput = document.getElementById('chatInput');
+    let userLang = null;
+    const apiKey = 'AIzaSyBx-3LSoYXKHVYhHY3WTlNIiETNdAh5j98';
+    let servicesData = [];
+    let extraData = [];
+    
+    // Load services table
+    async function loadServicesData() {
+        try {
+            const response = await fetch('services.html');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const table = doc.querySelector('table');
+            if (table) {
+                table.querySelectorAll('tr').forEach((row, index) => {
+                    if (index === 0) return; // skip header
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 2) {
+                        servicesData.push({
+                            service: cells[0].innerText.trim().toLowerCase(),
+                            price: cells[1].innerText.trim()
+                        });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load services data:', error);
+        }
+    }
+    
+    // Load contact and FAQ data
+    async function loadExtraData() {
+        const pages = ['contact.html', 'faq.html'];
+        for (let page of pages) {
+            try {
+                const response = await fetch(page);
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const extra = doc.querySelector('#botDataExtra');
+                if (extra) {
+                    extraData.push(extra.innerText.trim());
+                }
+            } catch (error) {
+                console.error(`Failed to load ${page}:`, error);
+            }
+        }
+        // Include this page's extra data
+        const localExtra = document.getElementById('botDataExtra');
+        if (localExtra) {
+            extraData.push(localExtra.innerText.trim());
+        }
+    }
+    
+    chatButton.addEventListener('click', () => {
+        chatBox.style.display = (chatBox.style.display === 'none' || chatBox.style.display === '') ? 'flex' : 'none';
+    });
+    document.getElementById('sendButton').addEventListener('click', () => {
+        const input = document.getElementById('userInput').value.trim();
+        if (input) {
+            addMessage('You', input);
+            processAndRespond(input);
+            document.getElementById('userInput').value = '';
+        }
+    });
+    document.getElementById('changeLangButton').addEventListener('click', () => {
+        const chatContent = document.getElementById('chatContent');
+        chatContent.innerHTML += `<div><strong>RescueBot:</strong> Please select your new language:</div>`;
+        chatContent.innerHTML += `
+            <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
+            <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
+            <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
+        `;
+        chatContent.scrollTop = chatContent.scrollHeight;
+    });
+    
+    function setLanguage(lang) {
+        userLang = lang;
+        const chatContent = document.getElementById('chatContent');
+        chatContent.innerHTML += `<div><strong>RescueBot:</strong> Great! You selected: ${lang.toUpperCase()}.</div>`;
+        chatContent.innerHTML += `<div><strong>RescueBot:</strong> Now you can ask me anything 👇</div>`;
+        chatInput.style.display = 'flex';
+    }
+    
+    async function processAndRespond(userInput) {
+        const translatedInput = await translateText(userInput, 'en');
+        let bestMatch = null;
+    
+        // Check services
+        for (let item of servicesData) {
+            if (translatedInput.toLowerCase().includes(item.service.slice(0, 5))) {
+                bestMatch = `${capitalize(item.service)} costs ${item.price}.`;
+                break;
+            }
+        }
+    
+        // Check extra data
+        if (!bestMatch) {
+            for (let info of extraData) {
+                if (translatedInput.toLowerCase().includes(info.slice(0, 5).toLowerCase())) {
+                    bestMatch = info;
+                    break;
+                }
+            }
+        }
+    
+        const fallback = "I'm sorry, I couldn't find an answer to that question.";
+    
+        if (bestMatch) {
+            if (userLang && userLang !== 'en') {
+                translateText(bestMatch, userLang).then(translated => {
+                    addMessage('RescueBot', translated);
+                }).catch(() => {
+                    addMessage('RescueBot', bestMatch + " (Translation failed)");
+                });
             } else {
-                chatBox.style.display = 'none';
+                addMessage('RescueBot', bestMatch);
             }
-        });
-        
-        document.getElementById('sendButton').addEventListener('click', () => {
-            const input = document.getElementById('userInput').value.trim();
-            if (input !== '') {
-                addMessage('You', input);
-                giveResponse(input);
-                document.getElementById('userInput').value = '';
-            }
-        });
-        
-        function giveResponse(input) {
-            input = input.toLowerCase();
-            let response = "I'm sorry, I didn't understand. Can you rephrase your question?";
-            
-            if (input.includes("hours") || input.includes("opening times")) {
-                response = "We are open from 6 PM to 9 PM on weekdays and from 9 AM to 9 PM on weekends.";
-            } else if (input.includes("repair") || input.includes("services")) {
-                response = "We repair smartphones, laptops, and smartwatches. Check out our Services page for more details!";
-            } else if (input.includes("price") || input.includes("cost")) {
-                response = "Prices vary depending on the device and issue. Contact us for a free quote!";
-            } else if (input.includes("location") || input.includes("address")) {
-                response = "We are located at 6 Massicot Road, in Treeby.";
-            } else if (input.includes("warranty")) {
-                response = "We offer a 1-month warranty on all repairs.";
-            }
-            
-            addMessage('RescueBot', response);
-            saveChat();
+        } else {
+            addMessage('RescueBot', fallback);
         }
-        
-        function addMessage(sender, text) {
-            const chatContent = document.getElementById('chatContent');
-            const msg = document.createElement('div');
-            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-            msg.style.marginBottom = '10px';
-            chatContent.appendChild(msg);
-            chatContent.scrollTop = chatContent.scrollHeight;
-        }
-        
-        function saveChat() {
-            const chatContent = document.getElementById('chatContent').innerHTML;
-            localStorage.setItem('rescueBotChat', chatContent);
-        }
-        
-        window.addEventListener('load', () => {
-            chatBox.style.display = 'none';  
-            const savedChat = localStorage.getItem('rescueBotChat');
-            if (savedChat) {
-                document.getElementById('chatContent').innerHTML = savedChat;
-            }
+    }
+    
+    function addMessage(sender, text) {
+        const chatContent = document.getElementById('chatContent');
+        const msg = document.createElement('div');
+        msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        msg.style.marginBottom = '10px';
+        chatContent.appendChild(msg);
+        chatContent.scrollTop = chatContent.scrollHeight;
+    }
+    
+    async function translateText(text, targetLang) {
+        const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ q: text, target: targetLang, format: 'text' }),
+            headers: { 'Content-Type': 'application/json' }
         });
-        </script>
+        const data = await response.json();
+        if (data && data.data && data.data.translations && data.data.translations[0]) {
+            return data.data.translations[0].translatedText;
+        } else {
+            throw new Error('Translation failed');
+        }
+    }
+    
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    window.addEventListener('load', () => {
+        chatBox.style.display = 'none';
+        loadServicesData();
+        loadExtraData();
+    });
+    </script>
+    <div id="botDataExtra" style="display:none;">
+        About: RescueTech is a reliable tech repair service with years of experience. We focus on fast, quality repairs for all major brands.
+      </div>
 </body>
 </html>
