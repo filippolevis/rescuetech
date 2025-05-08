@@ -149,78 +149,105 @@
     </div>
     
     <script>
-        const chatButton = document.getElementById('botChatButton');
         const chatBox = document.getElementById('chatBox');
+        const chatButton = document.getElementById('botChatButton');
         const chatInput = document.getElementById('chatInput');
+        const chatContent = document.getElementById('chatContent');
+        const userInput = document.getElementById('userInput');
+        const apiKey = "AIzaSyBx-3LSoYXKHVYhHY3WTlNIiETNdAh5j98";
         let userLang = null;
-        let extraData = [];
-        
+        let servicesData = "";
+        let botDataExtra = "";
+    
         chatButton.addEventListener('click', () => {
-            chatBox.style.display = (chatBox.style.display === 'none' || chatBox.style.display === '') ? 'flex' : 'none';
+          chatBox.style.display = (chatBox.style.display === 'none') ? 'flex' : 'none';
         });
-        document.getElementById('sendButton').addEventListener('click', () => {
-            const input = document.getElementById('userInput').value.trim();
-            if (input) {
-                addMessage('You', input);
-                processAndRespond(input);
-                document.getElementById('userInput').value = '';
-            }
+    
+        document.getElementById('sendButton').addEventListener('click', async () => {
+          const input = userInput.value.trim();
+          if (!input) return;
+          addMessage('You', input);
+          const translatedInput = await translateText(input, 'en');
+          const bestMatch = findBestMatch(translatedInput, servicesData + " " + botDataExtra);
+          const fallback = "I'm sorry, I couldn't find an answer to that question.";
+          addMessage('RescueBot', bestMatch || fallback);
+          userInput.value = '';
         });
+    
         document.getElementById('changeLangButton').addEventListener('click', () => {
-            const chatContent = document.getElementById('chatContent');
-            chatContent.innerHTML += `<div><strong>RescueBot:</strong> Please select your new language:</div>`;
-            chatContent.innerHTML += `
-                <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
-                <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
-                <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
-            `;
-            chatContent.scrollTop = chatContent.scrollHeight;
+          addMessage('RescueBot', "Please select your new language:");
+          chatContent.innerHTML += `
+            <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
+            <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
+            <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
+          `;
+          chatContent.scrollTop = chatContent.scrollHeight;
         });
-        
+    
         function setLanguage(lang) {
-            userLang = lang;
-            const chatContent = document.getElementById('chatContent');
-            chatContent.innerHTML += `<div><strong>RescueBot:</strong> Great! You selected: ${lang.toUpperCase()}.</div>`;
-            chatContent.innerHTML += `<div><strong>RescueBot:</strong> Now you can ask me anything 👇</div>`;
-            chatInput.style.display = 'flex';
+          userLang = lang;
+          addMessage('RescueBot', `Great! You selected: ${lang.toUpperCase()}.`);
+          addMessage('RescueBot', "Now you can ask me anything 👇");
+          chatInput.style.display = 'flex';
         }
-        
-        function processAndRespond(userInput) {
-            let bestMatch = null;
-            for (let info of extraData) {
-                if (info.toLowerCase().includes(userInput.toLowerCase()) || userInput.toLowerCase().includes(info.toLowerCase())) {
-                    bestMatch = info;
-                    break;
-                }
-            }
-            const fallback = "I'm sorry, I couldn't find an answer to that question.";
-            if (bestMatch) {
-                addMessage('RescueBot', bestMatch);
-            } else {
-                addMessage('RescueBot', fallback);
-            }
-        }
-        
+    
         function addMessage(sender, text) {
-            const chatContent = document.getElementById('chatContent');
-            const msg = document.createElement('div');
-            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-            msg.style.marginBottom = '10px';
-            chatContent.appendChild(msg);
-            chatContent.scrollTop = chatContent.scrollHeight;
+          const msg = document.createElement('div');
+          msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+          msg.style.marginBottom = '10px';
+          chatContent.appendChild(msg);
+          chatContent.scrollTop = chatContent.scrollHeight;
         }
-        
-        window.addEventListener('load', () => {
-            chatBox.style.display = 'none';
-            const localExtra = document.getElementById('botDataExtra');
-            if (localExtra) {
-                extraData.push(localExtra.innerText.trim());
+    
+        function findBestMatch(input, data) {
+          const lines = data.split(/\n|\.|\!/);
+          input = input.toLowerCase();
+          for (let line of lines) {
+            if (line.toLowerCase().includes(input) || input.includes(line.toLowerCase())) {
+              return line.trim();
             }
+          }
+          return null;
+        }
+    
+        async function translateText(text, targetLang) {
+          const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ q: text, target: targetLang, format: 'text' }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (data && data.data && data.data.translations && data.data.translations[0]) {
+            return data.data.translations[0].translatedText;
+          } else {
+            throw new Error('Translation failed');
+          }
+        }
+    
+        function loadExtraData() {
+          const localExtra = document.getElementById('botDataExtra');
+          if (localExtra) {
+            botDataExtra = localExtra.innerText.trim();
+          }
+        }
+    
+        window.addEventListener('load', () => {
+          chatBox.style.display = 'none';
+          loadExtraData();
+          addMessage('RescueBot', 'Welcome! Please choose your language:');
+          chatContent.innerHTML += `
+            <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
+            <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
+            <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
+          `;
         });
-        </script>
-        
-        <div id="botDataExtra" style="display:none;">
-          Contact: You can reach us at rescuetechhub@gmail.com or call +61 450 825 258. Our address is 6 Massicot Road, Treeby, Perth. (Location, indirizzo, where to find us)
-        </div>
+      </script>
+    
+      <div id="botDataExtra" style="display:none;">
+        Contact: You can reach us at rescuetechhub@gmail.com or call +61 450 825 258. 
+        Our address is 6 Massicot Road, Treeby, Perth, Western Australia. 
+        If you are asking "where are you located?", "where can I find you?", "what is your address?", "dove vi trovo?", "dove siete?", "indirizzo?", this is the answer: we are located at 6 Massicot Road, Treeby, Perth.
+      </div>
 </body>
 </html>
