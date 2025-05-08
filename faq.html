@@ -226,16 +226,6 @@
       }
     }
 
-    window.addEventListener('load', () => {
-      chatBox.style.display = 'none';
-      loadExtraData();
-      addMessage('RescueBot', 'Welcome! Please choose your language:');
-      chatContent.innerHTML += `
-        <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
-        <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
-        <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
-      `;
-    });
   </script>
     <div id="botDataExtra" style="display:none;">
         FAQ: We offer a 1-month warranty on all repairs. You can track your repair status online using your order number.
