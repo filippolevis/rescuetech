@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RescueTech</title>
@@ -42,11 +41,10 @@
   </div>
 </div>
 <nav>
-    <a href="services.html">Services</a>
-    <a href="about-us.html">About Us</a>
-    <a href="contact.html">Contact</a>
-    <a href="shop.html">Shop</a>
-    <a href="faq.html">FAQ</a>
+    <a href="#">Services</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact</a>
+    <a href="#">FAQ</a>
 </nav>
 <div class="main-section">
     <h2>Welcome to RescueTech!</h2>
@@ -57,148 +55,151 @@
     &copy; 2025 RescueTech. All rights reserved.
 </footer>
 </div>
-    <style>
-/* Floating button like WhatsApp */
-#botChatButton {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #107C41;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    font-size: 30px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-}
-
-/* Chat box */
-#chatBox {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    width: 300px;
-    max-height: 400px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    display: none;
-    flex-direction: column;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-#chatHeader {
-    background: #107C41;
-    color: white;
-    padding: 10px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    text-align: center;
-    font-weight: bold;
-}
-
-#chatContent {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    font-size: 0.95em;
-}
-
-#chatInput {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-}
-
-#chatInput input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-#chatInput button {
-    background: #107C41;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    margin-left: 5px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-</style>
-
-<!-- Floating button -->
-<button id="botChatButton">💬</button>
-
-<!-- Chat box -->
-<div id="chatBox">
-    <div id="chatHeader">RescueBot</div>
-    <div id="chatContent">Hi there! Type your question below 👇</div>
-    <div id="chatInput">
-        <input type="text" id="userInput" placeholder="Type your message...">
-        <button id="sendButton">Send</button>
+<style>
+    #botChatButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #107C41;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 1000;
+    }
+    
+    #chatBox {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 300px;
+        max-height: 400px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        display: none; 
+        flex-direction: column;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 1000;
+    }
+    
+    #chatHeader {
+        background: #107C41;
+        color: white;
+        padding: 10px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    #chatContent {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        font-size: 0.95em;
+    }
+    
+    #chatInput {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+    
+    #chatInput input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    
+    #chatInput button {
+        background: #107C41;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        margin-left: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    </style>
+    
+    <button id="botChatButton">💬</button>
+    
+    <div id="chatBox">
+        <div id="chatHeader">RescueBot</div>
+        <div id="chatContent">Hi there! Type your question below 👇</div>
+        <div id="chatInput">
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button id="sendButton">Send</button>
+        </div>
     </div>
-</div>
-
-<script>
-// Toggle chat open/close
-const chatButton = document.getElementById('botChatButton');
-const chatBox = document.getElementById('chatBox');
-
-chatButton.addEventListener('click', () => {
-    if (chatBox.style.display === 'none' || chatBox.style.display === '') {
-        chatBox.style.display = 'flex';
-    } else {
-        chatBox.style.display = 'none';
-    }
-});
-
-// Send message
-document.getElementById('sendButton').addEventListener('click', () => {
-    const input = document.getElementById('userInput').value.trim();
-    if (input !== '') {
-        addMessage('You', input);
-        giveResponse(input);
-        document.getElementById('userInput').value = '';
-    }
-});
-
-// Bot response logic
-function giveResponse(input) {
-    input = input.toLowerCase();
-    let response = "I'm sorry, I didn't understand. Can you rephrase your question?";
-    
-    if (input.includes("hours") || input.includes("opening times")) {
-        response = "We are open from 6 PM to 9 PM on weekdays and from 9 AM to 9 PM on weekends.";
-    } else if (input.includes("repair") || input.includes("services")) {
-        response = "We repair smartphones, laptops, and smartwatches. Check out our Services page for more details!";
-    } else if (input.includes("price") || input.includes("cost")) {
-        response = "Prices vary depending on the device and issue. Contact us for a free quote!";
-    } else if (input.includes("location") || input.includes("address")) {
-        response = "We are located at 6 Massicot Street, in Treeby.";
-    } else if (input.includes("warranty")) {
-        response = "We offer a 1-month warranty on all repairs.";
-    }
-    
-    addMessage('RescueBot', response);
-}
-
-// Add message to chat
-function addMessage(sender, text) {
-    const chatContent = document.getElementById('chatContent');
-    const msg = document.createElement('div');
-    msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-    msg.style.marginBottom = '10px';
-    chatContent.appendChild(msg);
-    chatContent.scrollTop = chatContent.scrollHeight;
-}
-</script>
+    <script>
+        const chatButton = document.getElementById('botChatButton');
+        const chatBox = document.getElementById('chatBox');
+        
+        chatButton.addEventListener('click', () => {
+            if (chatBox.style.display === 'none' || chatBox.style.display === '') {
+                chatBox.style.display = 'flex';
+            } else {
+                chatBox.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('sendButton').addEventListener('click', () => {
+            const input = document.getElementById('userInput').value.trim();
+            if (input !== '') {
+                addMessage('You', input);
+                giveResponse(input);
+                document.getElementById('userInput').value = '';
+            }
+        });
+        
+        function giveResponse(input) {
+            input = input.toLowerCase();
+            let response = "I'm sorry, I didn't understand. Can you rephrase your question?";
+            
+            if (input.includes("hours") || input.includes("opening times")) {
+                response = "We are open from 6 PM to 9 PM on weekdays and from 9 AM to 9 PM on weekends.";
+            } else if (input.includes("repair") || input.includes("services")) {
+                response = "We repair smartphones, laptops, and smartwatches. Check out our Services page for more details!";
+            } else if (input.includes("price") || input.includes("cost")) {
+                response = "Prices vary depending on the device and issue. Contact us for a free quote!";
+            } else if (input.includes("location") || input.includes("address")) {
+                response = "We are located at 6 Massicot Road, in Treeby.";
+            } else if (input.includes("warranty")) {
+                response = "We offer a 1-month warranty on all repairs.";
+            }
+            
+            addMessage('RescueBot', response);
+            saveChat();
+        }
+        
+        function addMessage(sender, text) {
+            const chatContent = document.getElementById('chatContent');
+            const msg = document.createElement('div');
+            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            msg.style.marginBottom = '10px';
+            chatContent.appendChild(msg);
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
+        
+        function saveChat() {
+            const chatContent = document.getElementById('chatContent').innerHTML;
+            localStorage.setItem('rescueBotChat', chatContent);
+        }
+        
+        window.addEventListener('load', () => {
+            chatBox.style.display = 'none';  
+            const savedChat = localStorage.getItem('rescueBotChat');
+            if (savedChat) {
+                document.getElementById('chatContent').innerHTML = savedChat;
+            }
+        });
+        </script>
 </body>
 </html>
