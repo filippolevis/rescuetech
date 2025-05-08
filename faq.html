@@ -143,166 +143,100 @@
 </div>
 
 <script>
-    const chatButton = document.getElementById('botChatButton');
     const chatBox = document.getElementById('chatBox');
+    const chatButton = document.getElementById('botChatButton');
     const chatInput = document.getElementById('chatInput');
+    const chatContent = document.getElementById('chatContent');
+    const userInput = document.getElementById('userInput');
+    const apiKey = "AIzaSyBx-3LSoYXKHVYhHY3WTlNIiETNdAh5j98";
     let userLang = null;
-    const apiKey = 'AIzaSyBx-3LSoYXKHVYhHY3WTlNIiETNdAh5j98';
-    let servicesData = [];
-    let extraData = [];
-    
-    // Load services table
-    async function loadServicesData() {
-        try {
-            const response = await fetch('services.html');
-            const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const table = doc.querySelector('table');
-            if (table) {
-                table.querySelectorAll('tr').forEach((row, index) => {
-                    if (index === 0) return; // skip header
-                    const cells = row.querySelectorAll('td');
-                    if (cells.length >= 2) {
-                        servicesData.push({
-                            service: cells[0].innerText.trim().toLowerCase(),
-                            price: cells[1].innerText.trim()
-                        });
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Failed to load services data:', error);
-        }
-    }
-    
-    // Load contact and FAQ data
-    async function loadExtraData() {
-        const pages = ['contact.html', 'faq.html'];
-        for (let page of pages) {
-            try {
-                const response = await fetch(page);
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const extra = doc.querySelector('#botDataExtra');
-                if (extra) {
-                    extraData.push(extra.innerText.trim());
-                }
-            } catch (error) {
-                console.error(`Failed to load ${page}:`, error);
-            }
-        }
-        // Include this page's extra data
-        const localExtra = document.getElementById('botDataExtra');
-        if (localExtra) {
-            extraData.push(localExtra.innerText.trim());
-        }
-    }
-    
+    let servicesData = "";
+    let botDataExtra = "";
+
     chatButton.addEventListener('click', () => {
-        chatBox.style.display = (chatBox.style.display === 'none' || chatBox.style.display === '') ? 'flex' : 'none';
+      chatBox.style.display = (chatBox.style.display === 'none') ? 'flex' : 'none';
     });
-    document.getElementById('sendButton').addEventListener('click', () => {
-        const input = document.getElementById('userInput').value.trim();
-        if (input) {
-            addMessage('You', input);
-            processAndRespond(input);
-            document.getElementById('userInput').value = '';
-        }
+
+    document.getElementById('sendButton').addEventListener('click', async () => {
+      const input = userInput.value.trim();
+      if (!input) return;
+      addMessage('You', input);
+      const translatedInput = await translateText(input, 'en');
+      const bestMatch = findBestMatch(translatedInput, servicesData + " " + botDataExtra);
+      const fallback = "I'm sorry, I couldn't find an answer to that question.";
+      addMessage('RescueBot', bestMatch || fallback);
+      userInput.value = '';
     });
+
     document.getElementById('changeLangButton').addEventListener('click', () => {
-        const chatContent = document.getElementById('chatContent');
-        chatContent.innerHTML += `<div><strong>RescueBot:</strong> Please select your new language:</div>`;
-        chatContent.innerHTML += `
-            <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
-            <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
-            <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
-        `;
-        chatContent.scrollTop = chatContent.scrollHeight;
+      addMessage('RescueBot', "Please select your new language:");
+      chatContent.innerHTML += `
+        <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
+        <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
+        <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
+      `;
+      chatContent.scrollTop = chatContent.scrollHeight;
     });
-    
+
     function setLanguage(lang) {
-        userLang = lang;
-        const chatContent = document.getElementById('chatContent');
-        chatContent.innerHTML += `<div><strong>RescueBot:</strong> Great! You selected: ${lang.toUpperCase()}.</div>`;
-        chatContent.innerHTML += `<div><strong>RescueBot:</strong> Now you can ask me anything 👇</div>`;
-        chatInput.style.display = 'flex';
+      userLang = lang;
+      addMessage('RescueBot', `Great! You selected: ${lang.toUpperCase()}.`);
+      addMessage('RescueBot', "Now you can ask me anything 👇");
+      chatInput.style.display = 'flex';
     }
-    
-    async function processAndRespond(userInput) {
-        const translatedInput = await translateText(userInput, 'en');
-        let bestMatch = null;
-    
-        // Check services
-        for (let info of extraData) {
-    if (info.toLowerCase().includes(translatedInput.toLowerCase()) || translatedInput.toLowerCase().includes(info.toLowerCase())) {
-        bestMatch = info;
-        break;
-    }
-}
-    
-        // Check extra data
-        if (!bestMatch) {
-            for (let info of extraData) {
-                if (translatedInput.toLowerCase().includes(info.slice(0, 5).toLowerCase())) {
-                    bestMatch = info;
-                    break;
-                }
-            }
-        }
-    
-        const fallback = "I'm sorry, I couldn't find an answer to that question.";
-    
-        if (bestMatch) {
-            if (userLang && userLang !== 'en') {
-                translateText(bestMatch, userLang).then(translated => {
-                    addMessage('RescueBot', translated);
-                }).catch(() => {
-                    addMessage('RescueBot', bestMatch + " (Translation failed)");
-                });
-            } else {
-                addMessage('RescueBot', bestMatch);
-            }
-        } else {
-            addMessage('RescueBot', fallback);
-        }
-    }
-    
+
     function addMessage(sender, text) {
-        const chatContent = document.getElementById('chatContent');
-        const msg = document.createElement('div');
-        msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-        msg.style.marginBottom = '10px';
-        chatContent.appendChild(msg);
-        chatContent.scrollTop = chatContent.scrollHeight;
+      const msg = document.createElement('div');
+      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      msg.style.marginBottom = '10px';
+      chatContent.appendChild(msg);
+      chatContent.scrollTop = chatContent.scrollHeight;
     }
-    
-    async function translateText(text, targetLang) {
-        const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify({ q: text, target: targetLang, format: 'text' }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        if (data && data.data && data.data.translations && data.data.translations[0]) {
-            return data.data.translations[0].translatedText;
-        } else {
-            throw new Error('Translation failed');
+
+    function findBestMatch(input, data) {
+      const lines = data.split(/\n|\.|\!/);
+      input = input.toLowerCase();
+      for (let line of lines) {
+        if (line.toLowerCase().includes(input) || input.includes(line.toLowerCase())) {
+          return line.trim();
         }
+      }
+      return null;
     }
-    
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
+
+    async function translateText(text, targetLang) {
+      const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ q: text, target: targetLang, format: 'text' }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      if (data && data.data && data.data.translations && data.data.translations[0]) {
+        return data.data.translations[0].translatedText;
+      } else {
+        throw new Error('Translation failed');
+      }
     }
-    
+
+    function loadExtraData() {
+      const localExtra = document.getElementById('botDataExtra');
+      if (localExtra) {
+        botDataExtra = localExtra.innerText.trim();
+      }
+    }
+
     window.addEventListener('load', () => {
-        chatBox.style.display = 'none';
-        loadServicesData();
-        loadExtraData();
+      chatBox.style.display = 'none';
+      loadExtraData();
+      addMessage('RescueBot', 'Welcome! Please choose your language:');
+      chatContent.innerHTML += `
+        <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
+        <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
+        <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
+      `;
     });
-    </script>
+  </script>
     <div id="botDataExtra" style="display:none;">
         FAQ: We offer a 1-month warranty on all repairs. You can track your repair status online using your order number.
       </div>
