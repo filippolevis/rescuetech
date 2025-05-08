@@ -204,16 +204,6 @@
       }
     }
 
-    window.addEventListener('load', () => {
-      chatBox.style.display = 'none';
-      loadExtraData();
-      addMessage('RescueBot', 'Welcome! Please choose your language:');
-      chatContent.innerHTML += `
-        <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
-        <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
-        <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
-      `;
-    });
   </script>
     <div id="botDataExtra" style="display:none;">
         About: RescueTech is a reliable tech repair service with years of experience. We focus on fast, quality repairs for all major brands.
