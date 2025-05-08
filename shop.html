@@ -201,16 +201,6 @@
       }
     }
 
-    window.addEventListener('load', () => {
-      chatBox.style.display = 'none';
-      loadExtraData();
-      addMessage('RescueBot', 'Welcome! Please choose your language:');
-      chatContent.innerHTML += `
-        <button onclick=\"setLanguage('en')\">🇬🇧 English</button>
-        <button onclick=\"setLanguage('it')\">🇮🇹 Italian</button>
-        <button onclick=\"setLanguage('es')\">🇪🇸 Spanish</button>
-      `;
-    });
   </script>
     <div id="botDataExtra" style="display:none;">
         Shop: Explore our range of high-quality accessories and spare parts for your devices, with fast delivery by Amazon.
