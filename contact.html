@@ -242,7 +242,7 @@
         
             // Check services
             for (let item of servicesData) {
-                if (translatedInput.toLowerCase().includes(item.service.slice(0, 5))) {
+                if (info.toLowerCase().includes(translatedInput.toLowerCase()) || translatedInput.toLowerCase().includes(info.toLowerCase())) {
                     bestMatch = `${capitalize(item.service)} costs ${item.price}.`;
                     break;
                 }
