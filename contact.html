@@ -153,58 +153,7 @@
         const chatBox = document.getElementById('chatBox');
         const chatInput = document.getElementById('chatInput');
         let userLang = null;
-        const apiKey = 'AIzaSyBx-3LSoYXKHVYhHY3WTlNIiETNdAh5j98';
-        let servicesData = [];
         let extraData = [];
-        
-        // Load services table
-        async function loadServicesData() {
-            try {
-                const response = await fetch('services.html');
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const table = doc.querySelector('table');
-                if (table) {
-                    table.querySelectorAll('tr').forEach((row, index) => {
-                        if (index === 0) return; // skip header
-                        const cells = row.querySelectorAll('td');
-                        if (cells.length >= 2) {
-                            servicesData.push({
-                                service: cells[0].innerText.trim().toLowerCase(),
-                                price: cells[1].innerText.trim()
-                            });
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to load services data:', error);
-            }
-        }
-        
-        // Load contact and FAQ data
-        async function loadExtraData() {
-            const pages = ['contact.html', 'faq.html'];
-            for (let page of pages) {
-                try {
-                    const response = await fetch(page);
-                    const text = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const extra = doc.querySelector('#botDataExtra');
-                    if (extra) {
-                        extraData.push(extra.innerText.trim());
-                    }
-                } catch (error) {
-                    console.error(`Failed to load ${page}:`, error);
-                }
-            }
-            // Include this page's extra data
-            const localExtra = document.getElementById('botDataExtra');
-            if (localExtra) {
-                extraData.push(localExtra.innerText.trim());
-            }
-        }
         
         chatButton.addEventListener('click', () => {
             chatBox.style.display = (chatBox.style.display === 'none' || chatBox.style.display === '') ? 'flex' : 'none';
@@ -236,40 +185,17 @@
             chatInput.style.display = 'flex';
         }
         
-        async function processAndRespond(userInput) {
-            const translatedInput = await translateText(userInput, 'en');
+        function processAndRespond(userInput) {
             let bestMatch = null;
-        
-            // Check services
-            for (let item of servicesData) {
-                if (info.toLowerCase().includes(translatedInput.toLowerCase()) || translatedInput.toLowerCase().includes(info.toLowerCase())) {
-                    bestMatch = `${capitalize(item.service)} costs ${item.price}.`;
+            for (let info of extraData) {
+                if (info.toLowerCase().includes(userInput.toLowerCase()) || userInput.toLowerCase().includes(info.toLowerCase())) {
+                    bestMatch = info;
                     break;
                 }
             }
-        
-            // Check extra data
-            if (!bestMatch) {
-                for (let info of extraData) {
-    if (info.toLowerCase().includes(translatedInput.toLowerCase()) || translatedInput.toLowerCase().includes(info.toLowerCase())) {
-        bestMatch = info;
-        break;
-    }
-}
-            }
-        
             const fallback = "I'm sorry, I couldn't find an answer to that question.";
-        
             if (bestMatch) {
-                if (userLang && userLang !== 'en') {
-                    translateText(bestMatch, userLang).then(translated => {
-                        addMessage('RescueBot', translated);
-                    }).catch(() => {
-                        addMessage('RescueBot', bestMatch + " (Translation failed)");
-                    });
-                } else {
-                    addMessage('RescueBot', bestMatch);
-                }
+                addMessage('RescueBot', bestMatch);
             } else {
                 addMessage('RescueBot', fallback);
             }
@@ -284,33 +210,17 @@
             chatContent.scrollTop = chatContent.scrollHeight;
         }
         
-        async function translateText(text, targetLang) {
-            const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify({ q: text, target: targetLang, format: 'text' }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const data = await response.json();
-            if (data && data.data && data.data.translations && data.data.translations[0]) {
-                return data.data.translations[0].translatedText;
-            } else {
-                throw new Error('Translation failed');
-            }
-        }
-        
-        function capitalize(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-        
         window.addEventListener('load', () => {
             chatBox.style.display = 'none';
-            loadServicesData();
-            loadExtraData();
+            const localExtra = document.getElementById('botDataExtra');
+            if (localExtra) {
+                extraData.push(localExtra.innerText.trim());
+            }
         });
         </script>
+        
         <div id="botDataExtra" style="display:none;">
-            Contact: You can reach us at filippolevis@gmail.com.com or call +61 450 825 258. Our address is 6 Massicot Road, Treeby, Perth.
-          </div>
+          Contact: You can reach us at rescuetechhub@gmail.com or call +61 450 825 258. Our address is 6 Massicot Road, Treeby, Perth. (Location, indirizzo, where to find us)
+        </div>
 </body>
 </html>
